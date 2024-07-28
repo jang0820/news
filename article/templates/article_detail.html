@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div  style="font-size: 20px;" class="list-group list-group-flush">
+    <label class="list-group-item">標題：{{ object.title }}</label>
+    <p class="list-group-item">內容：{{ object.content }}</p>
+    <label class="list-group-item">附件：{{ object.file }}</label>
+    <label class="list-group-item">建立日期：{{ object.ctime|date:'Y/m/d' }}</label>
+    <label class="list-group-item">點擊次數：{{ object.click }}</label>
+</div>
+<a href="{% url 'article:list' %}" class="btn btn-info">回最新消息</a>
+{% endblock  %}
