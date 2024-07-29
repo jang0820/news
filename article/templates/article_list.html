@@ -4,18 +4,22 @@
 
 <table class="table">
     <tbody>
-        <tr><a href="{% url 'article:create' %}" class="btn btn-success">新增公告</a></tr>
-        <tr style="font-size: 20px;"> <td width="60%">標題</td><td width="10%">時間</td><td width="10%">點擊次數</td><td width="20%"></td></tr>
+        <tr style="font-size: 20px;"><td><a href="{% url 'article:create' %}" class="btn btn-success">新增公告</a></td></tr>
+        <tr style="font-size: 20px;"> <td width="52%">標題</td><td width="15%">發布者</td><td width="10%">時間</td><td width="8%">點擊</td><td width="15%"></td></tr>
         {% for item in object_list %}
         <tr style="font-size: 20px;">
             <td><a href="{% url 'article:detail' item.pk %}" >{{ item.title }}</a></td>
+            <td>{{ item.user }}</td>
             <td>{{ item.ctime|date:'Y/m/d' }}</td>
             <td>{{ item.click }}</td>
+            {% if user.is_authenticated %}
             <td style="text-align:right;">
                 <a href="{% url 'article:update' item.pk %}" class="btn btn-success">修改</a>
                 <a href="{% url 'article:delete' item.pk %}" class="btn btn-danger">刪除</a>
-                <a href="{% url 'article:detail' item.pk %}" class="btn btn-info">明細</a>
             </td>
+            {% else %}
+            <td></td>
+            {% endif %}
         </tr>
         {%endfor%}
     </tbody>

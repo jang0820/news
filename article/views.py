@@ -1,37 +1,38 @@
 from django.views.generic import FormView, ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse, Http404
+import os
 from .models import Article
 from .forms import ArticleModelForm
-import os
+
+
 
 class ArticleListView(ListView):
     model = Article
     queryset = Article.objects.all() 
     template_name = 'article_list.html'  # 樣板路徑
 
-class ArticleCreateView(CreateView): #使用CreateView寫入資料到資料庫，與下方ArticleFormView選擇其中一個
+class ArticleCreateView(CreateView): #使用CreateView寫入資料到資料庫
     model = Article  #指定資料表
     form_class = ArticleModelForm  # 使用的表單類別
     template_name = 'article_create.html' # 樣板
     success_url = '/article'  # 儲存成功後要導向的網址
 
     def form_valid(self, form):
+        form.instance.user = self.request.user  #資料表內的user來自於self.request.user
         return super(ArticleCreateView, self).form_valid(form) #寫入資料庫
 
-class ArticleFormView(FormView): #使用FormView寫入資料到資料庫，與上方ArticleCreateView選擇其中一個
-    model = Article  #指定資料表
-    form_class = ArticleModelForm  # 使用的表單類別
-    template_name = 'article_create.html' # 樣板
-    success_url = '/article'  # 儲存成功後要導向的網址
+    @method_decorator(login_required)  #需要登入才能使用，修飾dispatch
+    def dispatch(self, request, *arg, **kwargs):
+        if (request.user.has_perm('article.article_create')): #需要權限news.news_create
+            return super().dispatch(request, *arg, **kwargs)
+        else:
+            raise Http404()
 
-    def form_valid(self, form):
-        title = form.cleaned_data['title']
-        content = form.cleaned_data['content']
-        file = form.cleaned_data['file']
-        article = Article(title=title, content=content, file=file)
-        article.save()  #寫入資料庫
-        return super(ArticleFormView, self).form_valid(form)
-
-class ArticleUpdateView(UpdateView):
+class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = '/accounts/login/'
     model = Article
     form_class = ArticleModelForm  # 使用的表單類別
     template_name = 'article_update.html'  # 修改樣板
@@ -42,6 +43,13 @@ class ArticleUpdateView(UpdateView):
         article = Article.objects.filter(pk = self.kwargs.get("pk"))  #updatenews為QuerySet物件，每個元素都是News
         context['article'] = article[0]   #增加變數到context
         return context
+    
+    def get(self, request, *args, **kwargs):
+        a = Article.objects.filter(pk = self.kwargs.get("pk"))
+        if ((a[0].user == request.user and request.user.has_perm('article.article_update')) or request.user.is_superuser):
+            return super().get(request, *args, **kwargs)
+        else:
+            raise Http404()
 
 class ArticleDeleteView(DeleteView):
     model = Article
