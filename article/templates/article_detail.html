@@ -5,9 +5,18 @@
 <div  style="font-size: 20px;" class="list-group list-group-flush">
     <label class="list-group-item">標題：{{ object.title }}</label>
     <p class="list-group-item">內容：{{ object.content }}</p>
-    <label class="list-group-item">附件：{{ object.file }}</label>
     <label class="list-group-item">建立日期：{{ object.ctime|date:'Y/m/d' }}</label>
     <label class="list-group-item">點擊次數：{{ object.click }}</label>
+    <label class="list-group-item">附件1：{{ object.file1 }}
+    <a href="{% url 'article:download' object.file1.path %}">下載</a></label>
+    <label class="list-group-item">附件1：{{ object.file2 }}
+    <a href="{% url 'article:download' object.file2.path %}">下載</a></label>
+    <label class="list-group-item">附件1：{{ object.file3 }}
+    <a href="{% url 'article:download' object.file3.path %}">下載</a></label>
+    <label class="list-group-item">附件1：{{ object.file4 }}
+    <a href="{% url 'article:download' object.file4.path %}">下載</a></label>
+    <label class="list-group-item">附件1：{{ object.file5 }}
+    <a href="{% url 'article:download' object.file5.path %}">下載</a></label>
 </div>
 <a href="{% url 'article:list' %}" class="btn btn-info">回最新消息</a>
 {% endblock  %}

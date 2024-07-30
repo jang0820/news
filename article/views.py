@@ -2,12 +2,22 @@ from django.views.generic import FormView, ListView, CreateView, UpdateView, Del
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect, HttpResponse, FileResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse, Http404, StreamingHttpResponse
+from urllib.parse import quote
 import os
 from .models import Article
 from .forms import ArticleModelForm
 
-
+@login_required
+def downloadFile(request, filepath):
+    if filepath != "":
+        try:
+            response = StreamingHttpResponse(open(filepath, 'rb'))
+            response['content_type'] = "application/octet-stream"
+            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(filepath)
+            return response
+        except Exception:
+            raise Http404
 
 class ArticleListView(ListView):
     model = Article
@@ -59,8 +69,19 @@ class ArticleDeleteView(DeleteView):
     def form_valid(self, form): #DeleteView的form，呼叫post函式，接著呼叫form_valid後刪除元素
         article = Article.objects.filter(pk=self.kwargs.get("pk"))
         a = article[0]
-        if a.file != "":
-            os.remove('{}'.format(a.file))  # 刪除檔案
+        if ((a.user == self.request.user and self.request.user.has_perm('article.article_delete')) or self.request.user.is_superuser):  # 檔案上傳者且有刪除權限或管理者才能刪除
+            if (a.file1 != ""):
+                os.remove('{}'.format(a.file1))  # 刪除檔案
+            if (a.file2 != ""):
+                os.remove('{}'.format(a.file2))  # 刪除檔案
+            if (a.file3 != ""):
+                os.remove('{}'.format(a.file3))  # 刪除檔案
+            if (a.file4 != ""):
+                os.remove('{}'.format(a.file4))  # 刪除檔案
+            if (a.file5 != ""):
+                os.remove('{}'.format(a.file5))  # 刪除檔案
+        else:
+            raise Http404()
         return super(ArticleDeleteView, self).form_valid(form)
 
 class ArticleDetailView(DetailView):
@@ -72,3 +93,4 @@ class ArticleDetailView(DetailView):
         item.click = item.click+1
         item.save()
         return super().get(request, *arg, **kwargs)
+

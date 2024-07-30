@@ -6,7 +6,11 @@ class Article(models.Model):
     content = models.TextField(verbose_name='content', help_text='news content')
     ctime = models.DateTimeField(auto_now = True)
     click = models.IntegerField(default=0)
-    file = models.FileField(upload_to = "upload/", null=True, blank=True)
+    file1 = models.FileField(upload_to = "upload/", null=True, blank=True)
+    file2 = models.FileField(upload_to = "upload/", null=True, blank=True)
+    file3 = models.FileField(upload_to = "upload/", null=True, blank=True)
+    file4 = models.FileField(upload_to = "upload/", null=True, blank=True)
+    file5 = models.FileField(upload_to = "upload/", null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='news_user', null = True)
 
     def __str__(self):
